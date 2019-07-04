@@ -1,10 +1,27 @@
-<table *ngFor="let crypto of cryptoArray">
-  <tr>
-    <td>Time&Date</td>
-    <td>{{crypto.name}}</td>
-  </tr>
-  <tr *ngFor="">
-    <td *ngFor="let data of crypto.data">{{data.date}}</td>
-    <td *ngFor="let coin of cryptoArray">{{coin.name}}</td>
-  </tr>
-</table>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-6">
+      <table *ngIf="cryptoArray.length !== 0" class="table table-dark">
+        <tr>
+          <th>Time&Date</th>
+          <th *ngFor="let crypto of cryptoArray">{{crypto.name}}</th>
+        </tr>
+        <tr>
+          <td>
+            <div *ngFor="let time of timestamp">{{time}}</div>
+          </td>
+          <td *ngFor="let crypto of cryptoArray">
+            <div *ngFor="let element of crypto.data">{{element.price | currency}}</div>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col-6">
+      <div style="display: block">
+        <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+          [chartType]="barChartType">
+        </canvas>
+      </div>
+    </div>
+  </div>
+</div>
