@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -7,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 export class CryptoService {
 
   url = 'https://api.coinranking.com/v1/public/coins';
+  coinsData = new BehaviorSubject<any>(new Array<any>());
 
   constructor(private http: HttpClient) {
   }

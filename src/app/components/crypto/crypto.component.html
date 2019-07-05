@@ -1,10 +1,14 @@
-<table *ngFor="let crypto of cryptoArray">
+<table class="table table-striped">
   <tr>
-    <td>Time&Date</td>
-    <td>{{crypto.name}}</td>
+    <th>Time&Date</th>
+    <th *ngFor="let crypto of cryptoArray">{{crypto.name}}</th>
   </tr>
-  <tr *ngFor="">
-    <td *ngFor="let data of crypto.data">{{data.date}}</td>
-    <td *ngFor="let coin of cryptoArray">{{coin.name}}</td>
+  <tr>
+    <td>
+      <div *ngFor="let time of timestamp">{{time | date}}</div>
+    </td>
+    <td *ngFor="let crypto of cryptoArray">
+      <div *ngFor="let element of crypto.data">{{element.price | currency}}</div>
+    </td>
   </tr>
 </table>

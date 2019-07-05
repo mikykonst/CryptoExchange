@@ -19,7 +19,9 @@ export class CryptoComponent implements OnInit {
   ngOnInit() {
     this.timestamp = [];
     this.exchanges = [];
-    this.cryptoArray = [];
+    this.cryptoService.coinsData.subscribe(value => {
+      this.cryptoArray = value;
+    });
     this.getMainCurrencies();
   }
 
@@ -41,12 +43,9 @@ export class CryptoComponent implements OnInit {
 
   getExchangeHistoryById(id: number, symbol: string) {
     return this.cryptoService.getExchangeHistoryById(id, '30d').subscribe((response: any) => {
-      debugger;
-      this.cryptoArray.push({
-        name: symbol, data: response.data.history.map((item: any) => (
-          {date: new Date(item.timestamp).toLocaleString(), price: item.price}
-        ))
-      });
+      this.timestamp = response.data.history.map((item: any) => (
+        new Date(item.timestamp).toLocaleString()
+      ));
     });
   }
 }

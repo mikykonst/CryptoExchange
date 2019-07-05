@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { CryptoComponent } from './components/crypto/crypto.component';
+import { MainComponent } from './components/main/main.component';
 
 const routes: Routes = [
-  {path: '', component: CryptoComponent}
+  {path: '', component: MainComponent}
 ];
 
 @NgModule({

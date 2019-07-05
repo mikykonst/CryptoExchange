@@ -1,3 +1,4 @@
-<p>
-  crypto-chart works!
-</p>
+<h2>{{ title }}</h2>
+<div [hidden]="!chart">
+  <canvas id="canvas">{{ chart }}</canvas>
+</div>
