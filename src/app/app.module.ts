@@ -7,6 +7,8 @@ import { CryptoComponent } from './components/crypto/crypto.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MainComponent } from './components/main/main.component';
 import { CryptoChartComponent } from './components/crypto-chart/crypto-chart.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {MatTableModule} from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,9 @@ import { CryptoChartComponent } from './components/crypto-chart/crypto-chart.com
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

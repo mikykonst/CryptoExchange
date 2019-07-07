@@ -12,15 +12,29 @@ export class CryptoComponent implements OnInit {
   cryptoArray: Array<any>;
   exchanges: Array<any>;
   timestamp: [];
+  displayedColumns: any[] = [];
+  dateExchange: {} = {};
 
   constructor(private cryptoService: CryptoService) {
   }
 
   ngOnInit() {
-    this.timestamp = [];
-    this.exchanges = [];
     this.cryptoService.coinsData.subscribe(value => {
       this.cryptoArray = value;
+      this.displayedColumns = [];
+      this.cryptoArray.forEach((coin: any) => {
+        coin.data.forEach((data: any, index) => {
+          let test = {};
+          test[coin.name] = data.price;
+          test['date'] = data.date;
+          if (!this.displayedColumns.some(elem => elem.hasOwnProperty(coin.name)) && this.displayedColumns.length > 0) {
+            debugger;
+            this.displayedColumns[index][coin.name] = data.price;
+          } else {
+            this.displayedColumns.push(test);
+          }
+        });
+      })
     });
     this.getMainCurrencies();
   }
@@ -28,7 +42,7 @@ export class CryptoComponent implements OnInit {
   getCurrencies() {
     this.cryptoService.getAllCurrencies().subscribe((res: any) => {
       return res.data.history.map((item: any) => {
-        return {price: item.price, dateTime: item.timestamp = new Date(parseFloat(item.timestamp))};
+        return { price: item.price, dateTime: item.timestamp = new Date(parseFloat(item.timestamp)) };
       });
     });
   }
@@ -46,6 +60,22 @@ export class CryptoComponent implements OnInit {
       this.timestamp = response.data.history.map((item: any) => (
         new Date(item.timestamp).toLocaleString()
       ));
+    });
+  }
+  sortByDate(sort: string) {
+    debugger;
+    this.timestamp.sort((a, b) => {
+      return a - b;
+    });
+  }
+  sortByCoin(sort: string) {
+    this.cryptoArray.forEach((coin: any) => {
+      debugger;
+      if (coin.name === sort) {
+        coin.data.sort((a, b) => {
+          return a.price - b.price;
+        })
+      }
     });
   }
 }

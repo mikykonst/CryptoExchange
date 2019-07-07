@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CryptoService } from '../../services/crypto.service';
 
 @Component({
@@ -12,7 +12,8 @@ export class MainComponent implements OnInit {
   exchanges: Array<any>;
   timestamp: [];
   data: any;
-  coinsNames: [];
+  coinsNames: Array<any>;
+  @ViewChild('coinslist') private coinsList;
 
 
   constructor(private cryptoService: CryptoService) {
@@ -28,9 +29,16 @@ export class MainComponent implements OnInit {
     this.getCurrencies('BTC', 'ETH', 'XLM');
   }
 
+  sortByPrice() {
+    this.cryptoArray.sort((a, b) => {
+      debugger;
+      return a.price - b.price;
+    })
+  }
+
   getCurrenciesNames() {
     return this.cryptoService.getAllCurrencies().subscribe((response: any) => {
-      this.filterCurrentCoins(response.data.coins.map(coin => ({symbol: coin.symbol, id: coin.id})));
+      this.filterCurrentCoins(response.data.coins.map(coin => ({ symbol: coin.symbol, id: coin.id })));
     });
   }
 
@@ -54,7 +62,7 @@ export class MainComponent implements OnInit {
     return this.cryptoService.getExchangeHistoryById(id, '30d').subscribe((response: any) => {
       this.cryptoArray.push({
         name: symbol, data: response.data.history.map((item: any) => (
-          {date: new Date(item.timestamp), price: parseFloat(item.price)}
+          { date: new Date(item.timestamp), price: parseFloat(item.price) }
         ))
       });
       this.cryptoService.coinsData.next(this.cryptoArray);
@@ -63,5 +71,11 @@ export class MainComponent implements OnInit {
 
   deleteCoinByName(name) {
     this.cryptoService.coinsData.next(this.cryptoArray.filter(item => item.name !== name));
+  }
+
+  addCoin() {
+    debugger;
+    let coinName = this.coinsList.nativeElement.selectedOptions[0].text;
+    this.getCurrencies(coinName);
   }
 }

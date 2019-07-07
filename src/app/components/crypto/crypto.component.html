@@ -1,14 +1,14 @@
 <table class="table table-striped">
   <tr>
-    <th>Time&Date</th>
-    <th *ngFor="let crypto of cryptoArray">{{crypto.name}}</th>
+    <th (click)="sortByDate('date')">Time&Date</th>
+    <th *ngFor="let crypto of cryptoArray" (click)="sortByCoin(crypto.name)">{{crypto.name}}</th>
   </tr>
   <tr>
     <td>
-      <div *ngFor="let time of timestamp">{{time | date}}</div>
+      <div *ngFor="let time of timestamp">{{time}}</div>
     </td>
     <td *ngFor="let crypto of cryptoArray">
-      <div *ngFor="let element of crypto.data">{{element.price | currency}}</div>
+      <div *ngFor="let element of crypto.data">{{element.price | currency:'EUR'}}</div>
     </td>
   </tr>
 </table>
