@@ -29,22 +29,16 @@ export class MainComponent implements OnInit {
     this.getCurrencies('BTC', 'ETH', 'XLM');
   }
 
-  sortByPrice() {
-    this.cryptoArray.sort((a, b) => {
-      debugger;
-      return a.price - b.price;
-    })
-  }
-
   getCurrenciesNames() {
     return this.cryptoService.getAllCurrencies().subscribe((response: any) => {
-      this.filterCurrentCoins(response.data.coins.map(coin => ({ symbol: coin.symbol, id: coin.id })));
+      this.filterCurrentCoins(response.data.coins.map(coin => ({symbol: coin.symbol, id: coin.id})));
     });
   }
 
   filterCurrentCoins(coins: []) {
+    this.coinsNames = coins;
     return this.cryptoArray.forEach(data => {
-      this.coinsNames = coins.filter((coin: any) => {
+      this.coinsNames = this.coinsNames.filter((coin: any) => {
         return coin.symbol !== data.name;
       });
     });
@@ -62,7 +56,7 @@ export class MainComponent implements OnInit {
     return this.cryptoService.getExchangeHistoryById(id, '30d').subscribe((response: any) => {
       this.cryptoArray.push({
         name: symbol, data: response.data.history.map((item: any) => (
-          { date: new Date(item.timestamp), price: parseFloat(item.price) }
+          {date: new Date(item.timestamp), price: parseFloat(item.price)}
         ))
       });
       this.cryptoService.coinsData.next(this.cryptoArray);
@@ -74,8 +68,7 @@ export class MainComponent implements OnInit {
   }
 
   addCoin() {
-    debugger;
-    let coinName = this.coinsList.nativeElement.selectedOptions[0].text;
+    const coinName = this.coinsList.nativeElement.selectedOptions[0].text;
     this.getCurrencies(coinName);
   }
 }

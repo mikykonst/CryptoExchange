@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CryptoService } from '../../services/crypto.service';
 import { Chart } from 'chart.js';
+import { MatPaginator, MatSort, MatTableDataSource, Sort } from '@angular/material';
 
 @Component({
   selector: 'app-crypto',
@@ -10,10 +11,14 @@ import { Chart } from 'chart.js';
 export class CryptoComponent implements OnInit {
 
   cryptoArray: Array<any>;
-  exchanges: Array<any>;
   timestamp: [];
   displayedColumns: any[] = [];
-  dateExchange: {} = {};
+  headers: string[];
+  columnsToDisplay: string[];
+  dataSource: any;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  @ViewChild(MatSort) sort: MatSort;
 
   constructor(private cryptoService: CryptoService) {
   }
@@ -22,27 +27,29 @@ export class CryptoComponent implements OnInit {
     this.cryptoService.coinsData.subscribe(value => {
       this.cryptoArray = value;
       this.displayedColumns = [];
-      this.cryptoArray.forEach((coin: any) => {
-        coin.data.forEach((data: any, index) => {
-          let test = {};
-          test[coin.name] = data.price;
-          test['date'] = data.date;
-          if (!this.displayedColumns.some(elem => elem.hasOwnProperty(coin.name)) && this.displayedColumns.length > 0) {
-            debugger;
-            this.displayedColumns[index][coin.name] = data.price;
-          } else {
-            this.displayedColumns.push(test);
-          }
-        });
-      })
+      this.headers = [];
+      this.columnsToDisplay = [];
+      this.convertDataToValidArray(this.cryptoArray);
+      this.headers = Object.keys(this.displayedColumns[0]);
+      this.columnsToDisplay = this.headers.slice();
+      this.dataSource = new MatTableDataSource(this.displayedColumns);
+      this.dataSource.sort = this.sort;
+      this.dataSource.paginator = this.paginator;
     });
     this.getMainCurrencies();
   }
 
-  getCurrencies() {
-    this.cryptoService.getAllCurrencies().subscribe((res: any) => {
-      return res.data.history.map((item: any) => {
-        return { price: item.price, dateTime: item.timestamp = new Date(parseFloat(item.timestamp)) };
+  convertDataToValidArray(data: any[]) {
+    data.forEach((coin: any) => {
+      coin.data.forEach((coinData: any, index) => {
+        const eachExchange = {};
+        eachExchange['date'] = coinData.date.toLocaleString();
+        eachExchange[coin.name] = coinData.price;
+        if (this.displayedColumns[index] && !this.displayedColumns[index].hasOwnProperty(coin.name)) {
+          this.displayedColumns[index][coin.name] = coinData.price;
+        } else {
+          this.displayedColumns.push(eachExchange);
+        }
       });
     });
   }
@@ -50,32 +57,78 @@ export class CryptoComponent implements OnInit {
   getMainCurrencies() {
     return this.cryptoService.getCurrencyBySymbols('BTC', 'ETH', 'XLM').subscribe((response: any) => {
       response.data.coins.forEach((coin: any) => {
-        this.getExchangeHistoryById(coin.id, coin.symbol);
+        this.getExchangeHistoryById(coin.id);
       });
     });
   }
 
-  getExchangeHistoryById(id: number, symbol: string) {
+  getExchangeHistoryById(id: number) {
     return this.cryptoService.getExchangeHistoryById(id, '30d').subscribe((response: any) => {
       this.timestamp = response.data.history.map((item: any) => (
         new Date(item.timestamp).toLocaleString()
       ));
     });
   }
-  sortByDate(sort: string) {
-    debugger;
-    this.timestamp.sort((a, b) => {
-      return a - b;
+
+  convertArrayOfObjectsToCSV(args) {
+    let result;
+    let ctr;
+    let keys;
+    let columnDelimiter;
+    let lineDelimiter;
+    let data;
+
+    data = args.data || null;
+    if (data == null || !data.length) {
+      return null;
+    }
+
+    columnDelimiter = args.columnDelimiter || ',';
+    lineDelimiter = args.lineDelimiter || '\n';
+
+    keys = Object.keys(data[0]);
+
+    result = '';
+    result += keys.join(columnDelimiter);
+    result += lineDelimiter;
+
+    data.forEach((item) => {
+      ctr = 0;
+      keys.forEach((key) => {
+        if (ctr > 0) {
+          result += columnDelimiter;
+        }
+
+        result += item[key];
+        ctr++;
+      });
+      result += lineDelimiter;
     });
+    return result;
   }
-  sortByCoin(sort: string) {
-    this.cryptoArray.forEach((coin: any) => {
-      debugger;
-      if (coin.name === sort) {
-        coin.data.sort((a, b) => {
-          return a.price - b.price;
-        })
-      }
+
+  downloadCSV() {
+    const args = {filename: 'stock-data.csv'};
+    let data;
+    let filename;
+    let link;
+    let csv = this.convertArrayOfObjectsToCSV({
+      data: this.displayedColumns
     });
+    if (csv == null) {
+      return;
+    }
+
+    filename = args.filename || 'export.csv';
+
+    if (!csv.match(/^data:text\/csv/i)) {
+      csv = 'data:text/csv;charset=utf-8,' + csv;
+    }
+    data = encodeURI(csv);
+
+    link = document.createElement('a');
+    link.setAttribute('href', data);
+    link.setAttribute('download', filename);
+    link.click();
   }
 }

@@ -8,12 +8,13 @@ import { Chart } from 'chart.js';
   styleUrls: ['./crypto-chart.component.scss']
 })
 export class CryptoChartComponent implements OnInit {
-
-  title = 'Crypto Exchange';
-  @Input() dataArray: [] = [];
+  
+  dataArray: any[] = [];
   chart: any;
   datasets = [];
   labels = [];
+  displayedColumns: any[] = [];
+  headers: string[] = [];
 
   constructor(private cryptoService: CryptoService) {
   }
@@ -21,32 +22,42 @@ export class CryptoChartComponent implements OnInit {
   ngOnInit() {
     this.cryptoService.coinsData.subscribe((value: any) => {
       this.dataArray = value;
-      this.createChart(this.dataArray.map((data: any) => data.data));
+      this.displayedColumns = [];
+      this.convertDataToValidArray(this.dataArray);
+      this.headers = this.dataArray[0].data.map(data => data.date.toLocaleString());
+      this.createChart();
     });
   }
 
-  createChart(data) {
+  createChart() {
     if (this.chart) {
       this.chart.destroy();
       this.datasets = [];
       this.labels = [];
     }
-    data.forEach((coin: any) => {
-      this.datasets.push({
-        data: coin.map(el => (el.price)), borderColor: '#29e7ff',
-        fill: false
-      });
-      this.labels = coin.map(el => el.date.toLocaleString());
+    const keys = Object.keys(this.displayedColumns[0]);
+    const datasets = [];
+    keys.forEach(key => {
+      if (key !== 'date') {
+        datasets.push({
+          data: this.displayedColumns.map(coin => {
+            return coin[key];
+          }),
+          borderColor: '#29e7ff',
+          fill: false,
+          label: key
+        });
+      }
     });
     this.chart = new Chart('canvas', {
       type: 'line',
       data: {
-        labels: this.labels,
-        datasets: this.datasets
+        labels: this.headers,
+        datasets: datasets
       },
       options: {
         tooltips: {
-          enabled: false
+          enabled: true
         },
         legend: {
           display: false
@@ -60,6 +71,21 @@ export class CryptoChartComponent implements OnInit {
           }],
         }
       }
+    });
+  }
+
+  convertDataToValidArray(data: any[]) {
+    data.forEach((coin: any) => {
+      coin.data.forEach((coinData: any, index) => {
+        const eachExchange = {};
+        eachExchange['date'] = coinData.date.toLocaleString();
+        eachExchange[coin.name] = coinData.price;
+        if (this.displayedColumns[index] && !this.displayedColumns[index].hasOwnProperty(coin.name)) {
+          this.displayedColumns[index][coin.name] = coinData.price;
+        } else {
+          this.displayedColumns.push(eachExchange);
+        }
+      });
     });
   }
 }

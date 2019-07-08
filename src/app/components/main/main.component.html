@@ -1,21 +1,18 @@
 <div class="coinatiner">
   <div class="row">
-    <div class="col-5">
+    <div class="col-lg-5 col-sm-5 dropdownCoins">
       <select #coinslist class="form-control">
         <option *ngFor="let coin of coinsNames" value="{{coin.id}}">{{coin.symbol}}</option>
       </select>
     </div>
-    <div class="col-1">
-      <button class="btn btn-outline-success" (click)="addCoin()">Add coin</button>
-    </div>
-    <div class="col-1">
-      <button (click)="sortByPrice()">Sort by price</button>
+    <div class="col-lg-1 col-sm-5">
+      <button class="btn btn-outline-success btnAdd" (click)="addCoin()">Add coin</button>
     </div>
   </div>
   <div class="row">
-    <div class="col">
+    <div class="col col-sm-12">
       <div class="input-group">
-        <div *ngFor="let coin of cryptoArray">
+        <div class="deleteBts" *ngFor="let coin of cryptoArray">
           <button class="btn btn-outline-danger" type="button" (click)="deleteCoinByName(coin.name)">{{coin.name}}
             X</button>
         </div>
@@ -23,10 +20,10 @@
     </div>
   </div>
   <div class="row" *ngIf="cryptoArray.length > 0">
-    <div class="col-6">
+    <div class="col-lg-6 col-sm-12">
       <app-crypto-chart></app-crypto-chart>
     </div>
-    <div class="col-6">
+    <div class="col-lg-6 col-sm-12">
       <app-crypto></app-crypto>
     </div>
   </div>
